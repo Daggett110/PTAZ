@@ -1,0 +1,6 @@
+*.csproj
+*.sln
+Paper TAZ/.vs/Paper TAZ/v14/.suo
+Paper TAZ/.vs/
+Paper TAZ/Library/
+Paper TAZ/obj/
