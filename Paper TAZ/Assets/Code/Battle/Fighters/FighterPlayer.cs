@@ -7,13 +7,25 @@
 /// </summary>
 public class FighterPlayer : Fighter
 {
-    //[Header("Fighter - Player")]
     private FighterDataPlayer playerData;
-    
+
+    #region Setup
+
     protected override void SetupFighterStats()
     {
         base.SetupFighterStats();
 
         // TODO Load in persistent stats (i.e. health)
     }
+
+    #endregion
+
+    #region Battle Updates
+
+    public override void SetAsActiveFighter()
+    {
+        BattleUIManager.Instance.UpdateCurrentFighter(this);
+    }
+
+    #endregion
 }

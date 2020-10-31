@@ -7,7 +7,6 @@
 /// </summary>
 public class FighterEnemy : Fighter
 {
-    //[Header("Fighter - Enemy")]
     private FighterDataEnemy EnemyData;
 
     protected override void SetupFighterStats()
@@ -15,11 +14,12 @@ public class FighterEnemy : Fighter
         base.SetupFighterStats();
 
         EnemyData = FighterData as FighterDataEnemy;
+
+        currentElevation = EnemyData.startingElevation;
     }
 
-    public override void SetTargetted(bool targeted)
+    public override void SetAsTargeted(bool targeted)
     {
-        TargetedArrow.gameObject.SetActive(targeted);
-        base.SetTargetted(targeted);
+        base.SetAsTargeted(targeted);
     }
 }

@@ -3,24 +3,19 @@
 // In charge of handiling tying the UI System to the action input
 public class PlayerTeamManager : TeamManager
 {
+    public int ActionPointMaximum = 5;
+    public int AvailableActionPoints { get; private set; }
+
     #region Setup and Initialization
-
-    private void OnEnable()
+    
+    public override void InitializeTeam()
     {
-        // TODO IMMEDIATE FIX
-        //BattleUIManager.OnAttackClicked += BeginTargetingFighters;
-        BattleUIManager.OnItemClicked += UseItem;
-        BattleUIManager.OnSpecialClicked += UseSpecial;
-        BattleUIManager.OnTacticsClicked += UseTactic;
-    }
+        base.InitializeTeam();
 
-    private void OnDisable()
-    {
-        // TODO IMMEDIATE FIX
-        //BattleUIManager.OnAttackClicked -= BeginTargetingFighters;
-        BattleUIManager.OnItemClicked -= UseItem;
-        BattleUIManager.OnSpecialClicked -= UseSpecial;
-        BattleUIManager.OnTacticsClicked -= UseTactic;
+        // TODO LOAD PLAYERS AND PERSISTENT DATA
+        AvailableActionPoints = ActionPointMaximum;
+
+        // TODO PASS PERSISTENT DATA TO UI MANAGER
     }
 
     #endregion
@@ -31,12 +26,7 @@ public class PlayerTeamManager : TeamManager
     {
         base.SetupActive();
 
-        BattleUIManager.Instance.ShowActionUI();
-    }
-
-    public override void SetupDefensive()
-    {
-        base.SetupDefensive();
+        // TODO Passive fighter ability?
     }
 
     public override void FighterDefeated(Fighter defeatedFighter)
@@ -49,24 +39,22 @@ public class PlayerTeamManager : TeamManager
 
     #endregion
 
-    #region Actions (Maybe move to team manager?)
+    #region Actions
 
-    public void UseItem()
+    public void SwapOrder()
     {
-        // TODO Setup Item Data Object and hold until target is selected
-        Debug.Log("Item Selected");
+        // TODO Change order with other active team member
     }
 
+    public void TagOut()
+    {
+        // TODO Tag out with passive team member
+    }
+    
     public void UseSpecial()
     {
         // TODO Setup Special Data Object and hold until target is selected
         Debug.Log("Special Selected");
-    }
-
-    public void UseTactic()
-    {
-        // TODO Setup Tactic Data Object and hold until target is selected
-        Debug.Log("Tactic Selected");
     }
 
     #endregion

@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
-using TMPro;
 
 public class BattleManager : MonoBehaviour {
 
@@ -25,14 +23,17 @@ public class BattleManager : MonoBehaviour {
     public static event StateChange OnStateChanged;
     public delegate void NumberChanged(int count);
     public static event NumberChanged OnTurnCountUpdated;
+    //public static event Action OnBeginFirstStrike;
     #endregion
+
     #region Exposed Variables
 
     public static BattleManager Instance { get; private set; }
     
     // Component References
-    public TeamManager PlayerTeam;
-    public TeamManager OpponentTeam;
+    public PlayerTeamManager PlayerTeam;
+    public EnemyTeamManager OpponentTeam;
+    public BattleData overrideBattleData;
 
     #endregion
 
@@ -50,11 +51,12 @@ public class BattleManager : MonoBehaviour {
         }
     }
 
+    public BattleData BattleData { get; private set; }
 
     #endregion
 
     #region Private Variables
-    
+
     private int turnCount = 0;
     private TeamManager activeTeam;
     private TeamManager defendingTeam;
@@ -70,13 +72,41 @@ public class BattleManager : MonoBehaviour {
         else
             Destroy(gameObject);
     }
-
+    
     private void Start()
     {
         CurrentBattleState = BattleState.Start;
 
+        if (overrideBattleData != null)
+            InitializeBattle(overrideBattleData);
+        else
+            Debug.LogError("Battle Manager: No Battle override Data has been added to the inspector, if GameManager is now passing data, Horray! and remove this error.");
+    }
+
+    // TODO Call from Game Manager with appropriate data passed in (BattleData?)
+    private void InitializeBattle(BattleData battleData)
+    {
+        BattleData = battleData;
+
+        // TODO Load Location into scene
+        Debug.Log("Loading Location: " + BattleData.locationID);
+
+        // Initialize Teams
         PlayerTeam.opposingTeam = OpponentTeam;
         OpponentTeam.opposingTeam = PlayerTeam;
+        PlayerTeam.InitializeTeam();
+        OpponentTeam.InitializeTeam();
+
+        // Reveal Battle Stage
+        // TODO Play stage reveal animation
+        PlayerTeam.WalkInFighters();
+        OpponentTeam.WalkInFighters();
+
+        // Resolve First Strike
+        //if (OnBeginFirstStrike != null)
+            //OnBeginFirstStrike();
+
+        // Initialize Starting Team, entering the battle loop
         SetState(BattleState.PlayerTurn);
     }
 
@@ -90,13 +120,9 @@ public class BattleManager : MonoBehaviour {
             SetState(BattleState.OpponentTurn);
         if (Input.GetKeyDown(KeyCode.Space))
             activeTeam.ActiveTeamMembers[activeTeam.ActiveFighterIndex].Attack();
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-            activeTeam.TargetNextValidFighter();
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            activeTeam.TargetPreviousValidFighter();
     }
 
-    #region Battle State Changes PARSE TASKS TO TEAM MANAGER
+    #region Battle State Changes
 
     public void SetState(BattleState state)
     {

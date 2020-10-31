@@ -4,17 +4,22 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33030cc141191c8418495fd9725ca14b, type: 3}
-  m_Name: Taako
+  m_Name: Merle
   m_EditorClassIdentifier: 
-  FighterName: Taako
-  MaxHealth: 8
-  Defense: 0
+  FighterName: Merle
+  MaxHealth: 10
+  Defense: 1
   AP: 5
-  Attack: 2
   AttackTurns: 1
   ItemTurns: 1
+  startingElevation: 1
+  FighterPrefab: {fileID: 0}
+  fighterAttributes: 0
+  AttackList:
+  - {fileID: 11400000, guid: 583f20ef243adb946a400e30141a2f5e, type: 2}

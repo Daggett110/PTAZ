@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -15,4 +16,10 @@ MonoBehaviour:
   MaxHealth: 10
   Defense: 2
   AP: 5
-  Attack: 2
+  AttackTurns: 1
+  ItemTurns: 1
+  startingElevation: 1
+  FighterPrefab: {fileID: 1089368285119406, guid: 5cfb870204e603243bd6d0141d67210b,
+    type: 3}
+  fighterAttributes: 0
+  AttackList: []

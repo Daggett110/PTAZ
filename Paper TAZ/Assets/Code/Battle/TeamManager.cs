@@ -12,16 +12,20 @@ public class TeamManager : MonoBehaviour {
     public static event FighterSelection OnCurrentFighterChanged;
 
     public List<Fighter> TeamMembers = new List<Fighter>();
+    public bool FightersArrangedLeftToRight;
     public List<Fighter> ActiveTeamMembers { get; private set; }
 
     [HideInInspector]
     public TeamManager opposingTeam;
+    public List<Fighter> TargetableFighters;
     public int ActiveFighterIndex { get; private set; }
-    public int targetedFighterIndex { get; private set; }
+    public int TargetedFighterIndex { get; private set; }
+
+    private int ActionPoints;
 
     #region Setup and Initialization
-
-    private void Start()
+    
+    public virtual void InitializeTeam()
     {
         ActiveTeamMembers = new List<Fighter>();
         for (int i = 0; i < TeamMembers.Count; i++)
@@ -32,6 +36,17 @@ public class TeamManager : MonoBehaviour {
         }
 
         SetTeamIndexes();
+    }
+
+    public void WalkInFighters()
+    {
+        // TODO Delay First Strike Fighter if there is one
+
+        // TODO have incapacitated Fighters start incapacitated on the floor rather than walking out
+        for(int i = 0; i < TeamMembers.Count; i++)
+        {
+            TeamMembers[i].WalkInFighter();
+        }
     }
 
     #endregion
@@ -62,64 +77,15 @@ public class TeamManager : MonoBehaviour {
     #endregion
 
     #region Targetting
-
-    public void BeginTargetingFighters(TeamManager targetTeam)
-    {
-        for (int i = 0; i < targetTeam.ActiveTeamMembers.Count; i++)
-            targetTeam.ActiveTeamMembers[i].SetTargetted(false);
-
-        for (int i = 0; i < targetTeam.ActiveTeamMembers.Count; i++)
-        {
-            if (targetTeam.FighterIsTargetableAt(i))
-            {
-                TargetFighterAt(i);
-                return;
-            }
-        }
-    }
-
-    public void CancelTargetingFighters(TeamManager targetTeam)
-    {
-        for (int i = 0; i < targetTeam.ActiveTeamMembers.Count; i++)
-            opposingTeam.ActiveTeamMembers[i].SetTargetted(false);
-    }
-
-    public void TargetNextValidFighter()
-    {
-        int i = targetedFighterIndex + 1;
-        while (!FighterIsTargetableAt(i))
-        {
-            i++;
-            if (i >= ActiveTeamMembers.Count)
-                i = 0;
-            if (i == targetedFighterIndex)
-                return;
-        }
-        TargetFighterAt(i);
-    }
-
-    public void TargetPreviousValidFighter()
-    {
-        int i = targetedFighterIndex - 1;
-        while (!FighterIsTargetableAt(i))
-        {
-            i--;
-            if (i <= -1)
-                i = ActiveTeamMembers.Count - 1;
-            if (i == targetedFighterIndex)
-                return;
-        }
-        TargetFighterAt(i);
-    }
-
+    
     protected void TargetFighterAt(int i)
     {
-        ActiveTeamMembers[targetedFighterIndex].SetTargetted(false);
-        targetedFighterIndex = i;
-        ActiveTeamMembers[targetedFighterIndex].SetTargetted(true);
-        ActiveTeamMembers[ActiveFighterIndex].SetTarget(ActiveTeamMembers[targetedFighterIndex]);
+        ActiveTeamMembers[TargetedFighterIndex].SetAsTargeted(false);
+        TargetedFighterIndex = i;
+        ActiveTeamMembers[TargetedFighterIndex].SetAsTargeted(true);
+        ActiveTeamMembers[ActiveFighterIndex].SetTarget(ActiveTeamMembers[TargetedFighterIndex]);
         if (OnTargetedFighterChanged != null)
-            OnTargetedFighterChanged(ActiveTeamMembers[targetedFighterIndex]);
+            OnTargetedFighterChanged(ActiveTeamMembers[TargetedFighterIndex]);
     }
 
     /// <summary>
@@ -168,8 +134,7 @@ public class TeamManager : MonoBehaviour {
     public IEnumerator FighterFinished()
     {
         yield return new WaitForSeconds(1f);
-        if (OnTargetedFighterChanged != null)
-            OnTargetedFighterChanged(null);
+        OnTargetedFighterChanged?.Invoke(null);
         if (BattleManager.Instance.CurrentBattleState != BattleManager.BattleState.Lose && BattleManager.Instance.CurrentBattleState != BattleManager.BattleState.Win)
         {
             bool nextFighterFound = false;
@@ -190,15 +155,14 @@ public class TeamManager : MonoBehaviour {
     protected virtual void SetActiveFighter(int fighterIndex)
     {
         ActiveFighterIndex = fighterIndex;
-        if (OnCurrentFighterChanged != null)
-            OnCurrentFighterChanged(ActiveTeamMembers[fighterIndex]);
+        ActiveTeamMembers[ActiveFighterIndex].SetAsActiveFighter();
+        OnCurrentFighterChanged?.Invoke(ActiveTeamMembers[fighterIndex]);
     }
 
     public virtual void FighterDefeated(Fighter defeatedFighter)
     {
-        // TODO Remove Targeted Fighter from pool
         ActiveTeamMembers.Remove(defeatedFighter);
-        // TODO Test for loss with no fighters remaining
+
         if (ActiveTeamMembers.Count == 0)
             BattleManager.Instance.SetState(BattleManager.BattleState.Lose);
     }
@@ -208,11 +172,12 @@ public class TeamManager : MonoBehaviour {
         RefreshActiveTeamList();
 
         for (int i = 0; i < ActiveTeamMembers.Count; i++)
-            ActiveTeamMembers[i].actionUsed = false;
+            ActiveTeamMembers[i].ResetTurn();
         
         SetActiveFighter(0);
     }
 
+    // TODO Is this necessary?
     public virtual void SetupDefensive()
     {
         // TODO Override in player/AI teams to allow for different setup

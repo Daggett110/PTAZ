@@ -20,17 +20,15 @@ public class Fighter : MonoBehaviour {
     #region Exposed Variables
 
     public FighterData FighterData;
-
-    [Header("Aesthetics")]
-    public string FighterName;
-
+    
     [Header("Stats")]
     public int MaxHealth;
     public int CurrentHealth;
 
     [Header("Mechanics")]
     public TeamManager FighterTeam;
-    public bool actionUsed = false;
+    public bool ActionUsed = false;
+    public bool FirstStrike { get; private set; }
 
     [Header("UI")]
     public TextMeshProUGUI HealthText;
@@ -52,7 +50,9 @@ public class Fighter : MonoBehaviour {
     // TODO Organize
     private WaitForSeconds DamageIndicationWait;
     
-    private Fighter targetedFighter;
+    private List<Fighter> targetedFighters = new List<Fighter>();
+
+    public BattleTargetting.TargetElevation currentElevation { get; protected set; }
 
     #endregion
 
@@ -72,7 +72,12 @@ public class Fighter : MonoBehaviour {
     protected virtual void SetupFighterStats()
     {
         // Set up variables
-        CurrentHealth = FighterData.MaxHealth;
+        CurrentHealth = MaxHealth = FighterData.MaxHealth;
+    }
+
+    public void WalkInFighter()
+    {
+        // TODO Play walk on animation for fighter
     }
 
     #endregion
@@ -81,7 +86,19 @@ public class Fighter : MonoBehaviour {
 
     public bool FighterCanBeActive()
     {
-        return CurrentHealth <= 0 || actionUsed ? false : true;
+        return CurrentHealth <= 0 || ActionUsed ? false : true;
+    }
+
+    public void Damage(int damage)
+    {
+        CurrentHealth -= damage;
+        if (CurrentHealth <= 0)
+            CurrentHealth = 0;
+        UpdateHealthUI();
+        StartCoroutine(IndicateDamage(damage));
+
+        if (CurrentHealth == 0)
+            FighterTeam.FighterDefeated(this);
     }
 
     #endregion
@@ -93,37 +110,61 @@ public class Fighter : MonoBehaviour {
         TeamIndex = i;
     }
 
+    public void ResetTurn()
+    {
+        ActionUsed = false;
+
+        // TODO Decrment buffs/debuffs make sure these work each turn
+    }
+
+    public virtual void SetAsActiveFighter()
+    {
+        // Override in Child classes
+    }
+
     #endregion
 
-    #region Attacks
+    #region Targetting
 
     public void SetTarget(Fighter targetFighter)
     {
-        targetedFighter = targetFighter;
+        targetedFighters.Clear();
+        targetedFighters.Add(targetFighter);
     }
 
+    public void SetTargets(List<Fighter> targetFighter)
+    {
+        targetedFighters = targetFighter;
+    }
+
+    // TODO Figure out when a target should stop acting targetted
+    public virtual void SetAsTargeted(bool targeted)
+    {
+        TargetedArrow.gameObject.SetActive(targeted);
+        // TODO IDEA What if a nervous animation was started when targeted?
+    }
+
+    #endregion
+
+    #region Actions
+    
+    // TODO Rework to use action list/Action Command
     public void Attack()
     {
         // TODO Replace with selected attacks once multiple are supported
         if (FighterData.AttackList.Count > 0)
         {
-            targetedFighter.Damage(FighterData.AttackList[0].Power);
+            for(int i = 0; i < targetedFighters.Count; i++)
+                targetedFighters[i].Damage(FighterData.AttackList[0].Power);
         }
-        targetedFighter.SetTargetted(false);
-        actionUsed = true;
+        //targetedFighter.SetTargetted(false);
+        ActionUsed = true;
         StartCoroutine(FighterTeam.FighterFinished());
     }
 
-    public void Damage(int damage)
+    public void UseItem()
     {
-        CurrentHealth -= damage;
-        if (CurrentHealth <= 0)
-            CurrentHealth = 0;
-        UpdateHealthUI();
-        StartCoroutine(IndicateDamage(damage));
 
-        if(CurrentHealth == 0)
-            FighterTeam.FighterDefeated(this);
     }
 
     #endregion
@@ -134,11 +175,6 @@ public class Fighter : MonoBehaviour {
     {
         HealthText.text = CurrentHealth + "/" + MaxHealth;
         healthBar.fillAmount = (float)CurrentHealth / MaxHealth;
-    }
-
-    public virtual void SetTargetted(bool targeted)
-    {
-        // TODO IDEA What if a nervous animation was started when targeted?
     }
 
     public IEnumerator IndicateDamage(int damage)
