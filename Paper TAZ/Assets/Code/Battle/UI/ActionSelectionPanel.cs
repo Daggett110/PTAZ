@@ -54,7 +54,7 @@ public class ActionSelectionPanel : MonoBehaviour
                 // adjust previous button nav
                 if (i > 0)
                 {
-                    ActionButtonPool[i].Button.navigation = new Navigation()
+                    ActionButtonPool[i - 1].Button.navigation = new Navigation()
                     {
                         mode = Navigation.Mode.Explicit,
                         selectOnUp = i == 1 ? ActionButtonPool[i].Button : ActionButtonPool[i - 2].Button,
@@ -68,6 +68,11 @@ public class ActionSelectionPanel : MonoBehaviour
                     BattleManager.Instance.PlayerTeam.AvailableActionPoints >= fighter.FighterData.AttackList[i].Cost &&
                     BattleTargetting.ValidTargetsFoundForAction(fighter, fighter.FighterData.AttackList[i].TargetData));
         }
+    }
+
+    public void LoadItems(Fighter fighter)
+    {
+
     }
 
     public void SelectAction(int index)

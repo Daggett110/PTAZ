@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour {
@@ -34,6 +35,7 @@ public class BattleManager : MonoBehaviour {
     public PlayerTeamManager PlayerTeam;
     public EnemyTeamManager OpponentTeam;
     public BattleData overrideBattleData;
+    public List<FighterData> PlayerFighters;
 
     #endregion
 

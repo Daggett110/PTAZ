@@ -19,7 +19,7 @@ MonoBehaviour:
   AttackTurns: 1
   ItemTurns: 1
   startingElevation: 1
-  FighterPrefab: {fileID: 1089368285119406, guid: 5cfb870204e603243bd6d0141d67210b,
+  FighterPrefab: {fileID: 1509445828425949606, guid: fb7c9b539411e7c44a25b0cfa14806e4,
     type: 3}
   fighterAttributes: 0
   AttackList: []

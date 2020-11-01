@@ -12,7 +12,7 @@ public class TeamManager : MonoBehaviour {
     public static event FighterSelection OnCurrentFighterChanged;
 
     public List<Fighter> TeamMembers = new List<Fighter>();
-    public bool FightersArrangedLeftToRight;
+    public Vector3[] TeamPositions;
     public List<Fighter> ActiveTeamMembers { get; private set; }
 
     [HideInInspector]
@@ -36,6 +36,17 @@ public class TeamManager : MonoBehaviour {
         }
 
         SetTeamIndexes();
+    }
+
+    protected void SpawnFighters(List<FighterData> fighters)
+    {
+        for (int i = 0; i < fighters.Count; i++)
+        {
+            TeamMembers.Add(GameObject.Instantiate(fighters[i].FighterPrefab).GetComponent<Fighter>());
+            TeamMembers[i].FighterData = fighters[i];
+            TeamMembers[i].transform.SetParent(transform);
+            TeamMembers[i].transform.localPosition = TeamPositions[i];
+        }
     }
 
     public void WalkInFighters()

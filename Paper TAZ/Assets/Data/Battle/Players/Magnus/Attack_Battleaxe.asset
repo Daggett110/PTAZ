@@ -17,7 +17,7 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: aeb6a24a2a29d5b4bbe4a49122b11039, type: 3}
   TargetData:
     TargetSelection: 0
-    TargetPosition: 2
+    TargetPosition: 1
     TargetElevation: 1
     TargetStatus: 1
     Attributes: 0

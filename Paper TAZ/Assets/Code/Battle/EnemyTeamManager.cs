@@ -4,19 +4,12 @@ using UnityEngine;
 
 public class EnemyTeamManager : TeamManager
 {
-    public Vector3[] EnemyPositions;
-
+    
     #region Setup
 
     public override void InitializeTeam()
     {
-        for(int i = 0; i < BattleManager.Instance.BattleData.EnemyData.Count; i++)
-        {
-            TeamMembers.Add(GameObject.Instantiate(BattleManager.Instance.BattleData.EnemyData[i].FighterPrefab).GetComponent<Fighter>());
-            TeamMembers[i].FighterData = BattleManager.Instance.BattleData.EnemyData[i];
-            TeamMembers[i].transform.SetParent(transform);
-            TeamMembers[i].transform.localPosition = EnemyPositions[i];
-        }
+        SpawnFighters(BattleManager.Instance.BattleData.EnemyData);
 
         base.InitializeTeam();
     }

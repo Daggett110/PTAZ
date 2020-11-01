@@ -10,6 +10,8 @@ public class PlayerTeamManager : TeamManager
     
     public override void InitializeTeam()
     {
+        SpawnFighters(BattleManager.Instance.PlayerFighters);
+
         base.InitializeTeam();
 
         // TODO LOAD PLAYERS AND PERSISTENT DATA
